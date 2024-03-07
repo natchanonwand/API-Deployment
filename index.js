@@ -101,6 +101,10 @@ app.post('/authen', async (req, res) => {
     }
 });
 
+
+
+
+
 // Production line database
 
 app.get('/api/business', async (req, res) => {
@@ -197,6 +201,47 @@ app.get('/api/countrecords/:Lot_id', async (req, res) => {
     }
 });
 
+
+app.get('/api/countrecords_counttray/latest/:Lot_id', async (req, res) => {
+    const { Lot_id } = req.params;
+    try {
+        const sql = `
+            SELECT cr.*, st.Machine_name 
+            FROM countrecords_counttray cr
+            LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
+            WHERE cr.Lot_id = ?
+            ORDER BY cr.created_at DESC
+            LIMIT 1
+        `;
+        const [results] = await connection.promise().query(sql, [Lot_id]);
+        res.json(results.length > 0 ? results[0] : {});
+    } catch (error) {
+        console.error('Error fetching the latest record by Lot_id:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
+    const { Lot_id } = req.params;
+    try {
+        const sql = `
+            SELECT cr.*, st.Machine_name
+            FROM countrecords cr
+            LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
+            WHERE cr.Lot_id = ?
+            ORDER BY cr.created_at DESC
+            LIMIT 1
+        `;
+        const [results] = await connection.promise().query(sql, [Lot_id]);
+        res.json(results.length > 0 ? results[0] : {});
+    } catch (error) {
+        console.error('Error fetching the latest record:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 app.post('/api/countrecords_counttray', async (req, res) => {
     const data = req.body; 
 
@@ -239,6 +284,18 @@ app.delete('/api/countrecords_counttray/:Lot_id', async (req, res) => {
     const { Lot_id } = req.params;
     try {
         const sql = "DELETE FROM countrecords_counttray WHERE Lot_id = ?";
+        const [result] = await connection.promise().query(sql, [Lot_id]);
+        res.json({ rowcount: result.affectedRows });
+    } catch (error) {
+        console.error('Error deleting record:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.delete('/api/countrecords/:Lot_id', async (req, res) => {
+    const { Lot_id } = req.params;
+    try {
+        const sql = "DELETE FROM countrecords WHERE Lot_id = ?";
         const [result] = await connection.promise().query(sql, [Lot_id]);
         res.json({ rowcount: result.affectedRows });
     } catch (error) {
