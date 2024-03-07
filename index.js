@@ -206,11 +206,13 @@ app.get('/api/countrecords_counttray/latest/:Lot_id', async (req, res) => {
     const { Lot_id } = req.params;
     try {
         const sql = `
-            SELECT cr.*, st.Machine_name 
+            SELECT cr.*, st.Machine_name
             FROM countrecords_counttray cr
             LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
             WHERE cr.Lot_id = ?
-            ORDER BY cr.Timestamp DESC
+            ORDER BY
+                CASE WHEN cr.Direction = 'out' THEN 1 ELSE 2 END,
+                cr.Machine_ID DESC
             LIMIT 1
         `;
         const [results] = await connection.promise().query(sql, [Lot_id]);
@@ -222,6 +224,7 @@ app.get('/api/countrecords_counttray/latest/:Lot_id', async (req, res) => {
 });
 
 
+
 app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
     const { Lot_id } = req.params;
     try {
@@ -230,7 +233,9 @@ app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
             FROM countrecords cr
             LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
             WHERE cr.Lot_id = ?
-            ORDER BY cr.Timestamp DESC
+            ORDER BY
+                CASE WHEN cr.Direction = 'out' THEN 1 ELSE 2 END,
+                cr.Machine_ID DESC
             LIMIT 1
         `;
         const [results] = await connection.promise().query(sql, [Lot_id]);
@@ -240,6 +245,7 @@ app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 app.post('/api/countrecords_counttray', async (req, res) => {
