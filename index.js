@@ -210,7 +210,7 @@ app.get('/api/countrecords_counttray/latest/:Lot_id', async (req, res) => {
             FROM countrecords_counttray cr
             LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
             WHERE cr.Lot_id = ?
-            ORDER BY cr.created_at DESC
+            ORDER BY cr.Timestamp DESC
             LIMIT 1
         `;
         const [results] = await connection.promise().query(sql, [Lot_id]);
@@ -230,7 +230,7 @@ app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
             FROM countrecords cr
             LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
             WHERE cr.Lot_id = ?
-            ORDER BY cr.created_at DESC
+            ORDER BY cr.Timestamp DESC
             LIMIT 1
         `;
         const [results] = await connection.promise().query(sql, [Lot_id]);
