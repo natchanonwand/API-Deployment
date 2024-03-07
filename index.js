@@ -246,7 +246,49 @@ app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
     }
 });
 
+app.get('/api/countrecords_counttray/CorrectLatest/:Lot_id', async (req, res) => {
+    const { Lot_id } = req.params;
+    try {
+        const sql = `
+            SELECT cr.*, st.Machine_name
+            FROM countrecords_counttray cr
+            LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
+            WHERE cr.Lot_id = ? AND cr.Judgement = 'Correct'
+            ORDER BY
+                CASE WHEN cr.Direction = 'out' THEN 1 ELSE 2 END,
+                cr.Machine_ID DESC
+            LIMIT 1
+        `;
+        const [results] = await connection.promise().query(sql, [Lot_id]);
+        res.json(results.length > 0 ? results[0] : {});
+    } catch (error) {
+        console.error('Error fetching the latest record by Lot_id:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
+
+
+app.get('/api/countrecords/CorrectLatest/:Lot_id', async (req, res) => {
+    const { Lot_id } = req.params;
+    try {
+        const sql = `
+            SELECT cr.*, st.Machine_name
+            FROM countrecords_counttray cr
+            LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
+            WHERE cr.Lot_id = ? AND cr.Judgement = 'Correct'
+            ORDER BY
+                CASE WHEN cr.Direction = 'out' THEN 1 ELSE 2 END,
+                cr.Machine_ID DESC
+            LIMIT 1
+        `;
+        const [results] = await connection.promise().query(sql, [Lot_id]);
+        res.json(results.length > 0 ? results[0] : {});
+    } catch (error) {
+        console.error('Error fetching the latest record:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.post('/api/countrecords_counttray', async (req, res) => {
     const data = req.body; 
