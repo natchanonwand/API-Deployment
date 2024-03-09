@@ -390,7 +390,7 @@ app.get('/api/countrecords_counttray/Position/:Machine_ID/:Direction/:Lot_id?', 
         // Include Lot_id in the query if provided
         if (Lot_id) {
             sql = `
-                SELECT Good, Direction 
+                SELECT TTL, Direction 
                 FROM countrecords_counttray 
                 WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
                 ORDER BY Timestamp DESC 
@@ -399,7 +399,7 @@ app.get('/api/countrecords_counttray/Position/:Machine_ID/:Direction/:Lot_id?', 
             params = [Machine_ID, Direction, Lot_id];
         } else {
             sql = `
-                SELECT Good, Direction 
+                SELECT TTL, Direction 
                 FROM countrecords_counttray 
                 WHERE Machine_ID = ? AND Direction = ? 
                 ORDER BY Timestamp DESC 
