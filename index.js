@@ -236,12 +236,12 @@ app.get('/api/countrecords/latest/:Lot_id', async (req, res) => {
     try {
         const sql = `
             SELECT cr.*, st.Machine_name
-            FROM countrecords_counttray cr
+            FROM countrecords cr
             LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
             WHERE cr.Lot_id = ?  -- Bind the Lot_id value here
             AND cr.Machine_ID = (
                 SELECT MAX(Machine_ID) 
-                FROM countrecords_counttray 
+                FROM countrecords 
                 WHERE Lot_id = cr.Lot_id
                 -- Optionally filter by Direction here if necessary
             )
@@ -294,13 +294,13 @@ app.get('/api/countrecords/CorrectLatest/:Lot_id', async (req, res) => {
     try {
         const sql = `
             SELECT cr.*, st.Machine_name
-            FROM countrecords_counttray cr
+            FROM countrecords cr
             LEFT JOIN station st ON cr.Machine_ID = st.Machine_ID
             WHERE cr.Lot_id = ?  -- Bind the Lot_id value here
             AND cr.Judgement = 'Correct'
             AND cr.Machine_ID = (
                 SELECT MAX(crt.Machine_ID)
-                FROM countrecords_counttray crt
+                FROM countrecords crt
                 WHERE crt.Lot_id = cr.Lot_id
                 AND crt.Judgement = 'Correct'
                 -- You can also apply additional filters here if needed, e.g., by Direction
