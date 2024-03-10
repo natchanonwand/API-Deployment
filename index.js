@@ -390,7 +390,7 @@ app.get('/api/countrecords_counttray/Position/:Machine_ID/:Direction/:Lot_id?', 
         // Include Lot_id in the query if provided
         if (Lot_id) {
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL
+                SELECT Lot_id, Timestamp, Direction, Machine_ID, Substrate, TTL
                 FROM countrecords_counttray 
                 WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
                 ORDER BY Timestamp DESC 
@@ -399,7 +399,7 @@ app.get('/api/countrecords_counttray/Position/:Machine_ID/:Direction/:Lot_id?', 
             params = [Machine_ID, Direction, Lot_id];
         } else {
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL
+                SELECT Lot_id, Timestamp, Direction, Machine_ID, Substrate, TTL
                 FROM countrecords_counttray 
                 WHERE Machine_ID = ? AND Direction = ? 
                 ORDER BY Timestamp DESC 
@@ -432,7 +432,7 @@ app.get('/api/countrecords_counttray/PositionCBM/:Machine_ID/:Direction/:Lot_id?
         if (Lot_id) {
             // Query when Lot_id is provided
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
+                SELECT Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
                 FROM countrecords_counttray 
                 WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
                 ORDER BY Timestamp DESC 
@@ -442,7 +442,7 @@ app.get('/api/countrecords_counttray/PositionCBM/:Machine_ID/:Direction/:Lot_id?
         } else {
             // Query when Lot_id is not provided
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
+                SELECT Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
                 FROM countrecords_counttray 
                 WHERE Machine_ID = ? AND Direction = ? 
                 ORDER BY Timestamp DESC 
@@ -475,7 +475,7 @@ app.get('/api/countrecords/Position/:Machine_ID/:Direction/:Lot_id?', async (req
         // Include Lot_id in the query if provided
         if (Lot_id) {
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL
+                SELECT Lot_id, Timestamp, Direction, Machine_ID, Substrate, TTL
                 FROM countrecords
                 WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
                 ORDER BY Timestamp DESC 
@@ -484,7 +484,7 @@ app.get('/api/countrecords/Position/:Machine_ID/:Direction/:Lot_id?', async (req
             params = [Machine_ID, Direction, Lot_id];
         } else {
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL
+                SELECT Lot_id, Timestamp, Direction, Machine_ID, Substrate, TTL
                 FROM countrecords
                 WHERE Machine_ID = ? AND Direction = ? 
                 ORDER BY Timestamp DESC 
@@ -517,7 +517,7 @@ app.get('/api/countrecords/PositionCBM/:Machine_ID/:Direction/:Lot_id?', async (
         if (Lot_id) {
             // Query when Lot_id is provided
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
+                SELECT Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
                 FROM countrecords
                 WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
                 ORDER BY Timestamp DESC 
@@ -527,7 +527,7 @@ app.get('/api/countrecords/PositionCBM/:Machine_ID/:Direction/:Lot_id?', async (
         } else {
             // Query when Lot_id is not provided
             sql = `
-                SELECT Lot_id, Direction, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
+                SELECT Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good 
                 FROM countrecords
                 WHERE Machine_ID = ? AND Direction = ? 
                 ORDER BY Timestamp DESC 
