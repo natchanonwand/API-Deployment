@@ -465,6 +465,91 @@ app.get('/api/countrecords_counttray/PositionCBM/:Machine_ID/:Direction/:Lot_id?
     }
 });
 
+app.get('/api/countrecords/Position/:Machine_ID/:Direction/:Lot_id?', async (req, res) => {
+    const { Machine_ID, Direction, Lot_id } = req.params;
+
+    try {
+        let sql;
+        let params;
+
+        // Include Lot_id in the query if provided
+        if (Lot_id) {
+            sql = `
+                SELECT TTL, Direction 
+                FROM countrecords
+                WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
+                ORDER BY Timestamp DESC 
+                LIMIT 1
+            `;
+            params = [Machine_ID, Direction, Lot_id];
+        } else {
+            sql = `
+                SELECT TTL, Direction 
+                FROM countrecords
+                WHERE Machine_ID = ? AND Direction = ? 
+                ORDER BY Timestamp DESC 
+                LIMIT 1
+            `;
+            params = [Machine_ID, Direction];
+        }
+
+        const [results] = await connection.promise().query(sql, params);
+
+        // If no data found, send a 404 response
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No data found' });
+        }
+
+        res.json(results[0]);
+    } catch (error) {
+        console.error('Error fetching the newest data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/api/countrecords/PositionCBM/:Machine_ID/:Direction/:Lot_id?', async (req, res) => {
+    const { Machine_ID, Direction, Lot_id } = req.params;
+
+    try {
+        let sql;
+        let params;
+
+        if (Lot_id) {
+            // Query when Lot_id is provided
+            sql = `
+                SELECT Substrate, TTL, badmark, ASSY_input, NG, Good 
+                FROM countrecords
+                WHERE Machine_ID = ? AND Direction = ? AND Lot_id = ? 
+                ORDER BY Timestamp DESC 
+                LIMIT 1
+            `;
+            params = [Machine_ID, Direction, Lot_id];
+        } else {
+            // Query when Lot_id is not provided
+            sql = `
+                SELECT Lot_id, Substrate, TTL, badmark, ASSY_input, NG, Good 
+                FROM countrecords
+                WHERE Machine_ID = ? AND Direction = ? 
+                ORDER BY Timestamp DESC 
+                LIMIT 1
+            `;
+            params = [Machine_ID, Direction];
+        }
+
+        const [results] = await connection.promise().query(sql, params);
+
+        // If no data found, send a 404 response
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No data found' });
+        }
+
+        res.json(results[0]);
+    } catch (error) {
+        console.error('Error fetching the newest data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.get('/api/countrecords_counttray/Lot_id/', async (req, res) => {
     try {
         const sql = "SELECT DISTINCT Lot_id FROM countrecords_counttray";
