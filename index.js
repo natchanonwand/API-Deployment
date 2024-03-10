@@ -593,6 +593,38 @@ app.get('/api/countrecords_counttray/:Business_id/datetime_range/:start_timestam
     }
 });
 
+app.get('/api/countrecords_counttray', async (req, res) => {
+    try {
+        await connectToDatabase();
+        connection.query('SELECT Lot_id FROM countrecords_counttray ORDER BY count_id DESC ', (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.json(results);
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/api/countrecords', async (req, res) => {
+    try {
+        await connectToDatabase();
+        connection.query('SELECT Lot_id FROM countrecords ORDER BY count_id DESC ', (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.json(results);
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 app.listen(process.env.PORT || 3334, () => {
     console.log(`Server running on port ${process.env.PORT || 3334}`);
