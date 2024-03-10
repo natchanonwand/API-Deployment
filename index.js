@@ -596,7 +596,7 @@ app.get('/api/countrecords_counttray/:Business_id/datetime_range/:start_timestam
 app.get('/api/Lot_idData/countrecords_counttray', async (req, res) => {
     try {
         await connectToDatabase();
-        connection.query('SELECT Lot_id FROM countrecords_counttray ORDER BY count_id DESC ', (err, results) => {
+        connection.query('SELECT DISTINCT Lot_id FROM countrecords_counttray ORDER BY count_id DESC ', (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send('Internal Server Error');
@@ -612,7 +612,7 @@ app.get('/api/Lot_idData/countrecords_counttray', async (req, res) => {
 app.get('/api/Lot_idData/countrecords', async (req, res) => {
     try {
         await connectToDatabase();
-        connection.query('SELECT Lot_id FROM countrecords ORDER BY count_id DESC ', (err, results) => {
+        connection.query('SELECT DISTINCT Lot_id FROM countrecords ORDER BY count_id DESC ', (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send('Internal Server Error');
