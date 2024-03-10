@@ -593,7 +593,7 @@ app.get('/api/countrecords_counttray/:Business_id/datetime_range/:start_timestam
     }
 });
 
-app.get('/api/countrecords_counttray', async (req, res) => {
+app.get('/api/countrecords_counttray/Lot_id', async (req, res) => {
     try {
         await connectToDatabase();
         connection.query('SELECT Lot_id FROM countrecords_counttray ORDER BY count_id DESC ', (err, results) => {
@@ -609,7 +609,7 @@ app.get('/api/countrecords_counttray', async (req, res) => {
     }
 });
 
-app.get('/api/countrecords', async (req, res) => {
+app.get('/api/countrecords/Lot_id', async (req, res) => {
     try {
         await connectToDatabase();
         connection.query('SELECT Lot_id FROM countrecords ORDER BY count_id DESC ', (err, results) => {
