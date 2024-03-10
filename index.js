@@ -327,7 +327,7 @@ app.post('/api/countrecords_counttray', async (req, res) => {
                 INSERT INTO countrecords_counttray (Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good, Business_id, Judgement)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
-            await connection.promise().query(sql, [item.Lot_id, item.Direction, item.Timestamp, item.Machine_ID, item.Substrate, item.TTL, item.badmark, item.ASSY_input, item.NG, item.Good, , item.Business_id, item.Judgement]);
+            await connection.promise().query(sql, [item.Lot_id, item.Direction, item.Timestamp, item.Machine_ID, item.Substrate, item.TTL, item.badmark, item.ASSY_input, item.NG, item.Good, item.Business_id, item.Judgement]);
         });
 
         res.json({ message: "Data inserted successfully" });
@@ -343,10 +343,10 @@ app.post('/api/countrecords', async (req, res) => {
     try {
         data.forEach(async (item) => {
             const sql = `
-                INSERT INTO countrecords (Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good, Business_id, Judgement)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO countrecords (Lot_id, Direction, Timestamp, Machine_ID, Substrate, TTL, badmark, ASSY_input, NG, Good)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
-            await connection.promise().query(sql, [item.Lot_id, item.Direction, item.Timestamp, item.Machine_ID, item.Substrate, item.TTL, item.badmark, item.ASSY_input, item.NG, item.Good, item.Business_id, item.Judgement]);
+            await connection.promise().query(sql, [item.Lot_id, item.Direction, item.Timestamp, item.Machine_ID, item.Substrate, item.TTL, item.badmark, item.ASSY_input, item.NG, item.Good]);
         });
 
         res.json({ message: "Data inserted successfully" });
