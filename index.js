@@ -123,6 +123,219 @@ app.get('/api/business', async (req, res) => {
     }
 });
 
+app.post('/api/business', async (req, res) => {
+    try {
+        const { Business_name } = req.body;
+        
+        if (!Business_name) {
+            return res.status(400).send('Business name is required');
+        }
+        
+        // Connect to the database
+        await connectToDatabase();
+        
+        // Use parameterized query to prevent SQL injection
+        const query = 'INSERT INTO business (Business_name) VALUES (?)';
+        
+        connection.query(query, [Business_name], (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            // Send back the ID of the new business
+            res.status(201).send({ Business_id: results.insertId });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.put('/api/business/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Business_id from the URL
+        const { Business_name } = req.body; // New Business_name from the request body
+
+        // Simple validation
+        if (!Business_name) {
+            return res.status(400).send('Business name is required');
+        }
+
+        await connectToDatabase();
+
+        // Use parameterized query to prevent SQL injection
+        const query = 'UPDATE business SET Business_name = ? WHERE Business_id = ?';
+
+        connection.query(query, [Business_name, id], (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            if (results.affectedRows === 0) {
+                return res.status(404).send('Business not found');
+            }
+            res.status(200).send('Business updated successfully');
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.delete('/api/business/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Business_id from the URL
+
+        await connectToDatabase();
+
+        // Use parameterized query to prevent SQL injection
+        const query = 'DELETE FROM business WHERE Business_id = ?';
+
+        connection.query(query, [id], (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            if (results.affectedRows === 0) {
+                return res.status(404).send('Business not found');
+            }
+            res.status(200).send('Business deleted successfully');
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/api/station', async (req, res) => {
+    try {
+        await connectToDatabase();
+
+        // If you just need all columns from the station table without joining with the business table
+        const query = 'SELECT * FROM station';
+
+        // If you want to include the business name from the business table in each station result,
+        // you could use a SQL join like this:
+        // const query = `
+        //     SELECT s.Machine_ID, s.Machine_name, s.Business_id, b.Business_name
+        //     FROM station s
+        //     JOIN business b ON s.Business_id = b.Business_id
+        // `;
+
+        connection.query(query, (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.json(results);
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.put('/api/station/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Machine_ID from the URL
+        const { Machine_name, Business_id } = req.body; // New values from the request body
+
+        // Basic validation
+        if (!Machine_name || !Business_id) {
+            return res.status(400).send('Machine name and Business ID are required');
+        }
+
+        await connectToDatabase();
+
+        const query = 'UPDATE station SET Machine_name = ?, Business_id = ? WHERE Machine_ID = ?';
+
+        connection.query(query, [Machine_name, Business_id, id], (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            if (results.affectedRows === 0) {
+                // No station was updated, likely because the Machine_ID doesn't exist
+                return res.status(404).send('Station not found');
+            }
+            res.status(200).send('Station updated successfully');
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.delete('/api/station/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Machine_ID from the URL
+
+        await connectToDatabase();
+
+        const query = 'DELETE FROM station WHERE Machine_ID = ?';
+
+        connection.query(query, [id], (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Internal Server Error');
+            }
+            if (results.affectedRows === 0) {
+                // No station was deleted, likely because the Machine_ID doesn't exist
+                return res.status(404).send('Station not found');
+            }
+            res.status(200).send('Station deleted successfully');
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/api/station', async (req, res) => {
+    try {
+        const { Machine_name, Business_id } = req.body;
+
+        // Basic validation
+        if (!Machine_name || !Business_id) {
+            return res.status(400).send('Both Machine name and Business ID are required');
+        }
+
+        await connectToDatabase();
+
+        // First, validate the Business_id exists in the business table
+        const validationQuery = 'SELECT 1 FROM business WHERE Business_id = ?';
+
+        connection.query(validationQuery, [Business_id], (validationErr, validationResults) => {
+            if (validationErr) {
+                console.error(validationErr);
+                return res.status(500).send('Internal Server Error');
+            }
+
+            if (validationResults.length === 0) {
+                // No matching business found for the provided Business_id
+                return res.status(400).send('Invalid Business ID');
+            }
+
+            // Business_id is valid, proceed to insert into station table
+            const insertQuery = 'INSERT INTO station (Machine_name, Business_id) VALUES (?, ?)';
+
+            connection.query(insertQuery, [Machine_name, Business_id], (insertErr, insertResults) => {
+                if (insertErr) {
+                    console.error(insertErr);
+                    return res.status(500).send('Internal Server Error');
+                }
+                // Send back the ID of the new station
+                res.status(201).send({ Machine_ID: insertResults.insertId });
+            });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
 app.get('/api/countrecords_counttray', async (req, res) => {
     try {
         await connectToDatabase();
