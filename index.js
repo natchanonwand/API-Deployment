@@ -211,16 +211,13 @@ app.get('/api/station', async (req, res) => {
     try {
         await connectToDatabase();
 
-        // If you just need all columns from the station table without joining with the business table
-        const query = 'SELECT * FROM station';
+        const { business_id } = req.query;
 
-        // If you want to include the business name from the business table in each station result,
-        // you could use a SQL join like this:
-        // const query = `
-        //     SELECT s.Machine_ID, s.Machine_name, s.Business_id, b.Business_name
-        //     FROM station s
-        //     JOIN business b ON s.Business_id = b.Business_id
-        // `;
+        // If business_id is provided in the query parameters, filter stations by it
+        let query = 'SELECT * FROM station';
+        if (business_id) {
+            query += ` WHERE Business_id = ${business_id}`;
+        }
 
         connection.query(query, (err, results) => {
             if (err) {
@@ -234,6 +231,7 @@ app.get('/api/station', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 app.put('/api/station/:id', async (req, res) => {
     try {
