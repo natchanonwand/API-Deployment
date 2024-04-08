@@ -131,18 +131,15 @@ app.post('/api/business', async (req, res) => {
             return res.status(400).send('Business name is required');
         }
         
-        // Connect to the database
         await connectToDatabase();
         
-        // Use parameterized query to prevent SQL injection
-        const query = 'INSERT INTO business (Business_name) VALUES (?)';
+        const query = `INSERT INTO business (Business_name) VALUES (?)`;
         
         connection.query(query, [Business_name], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send('Internal Server Error');
             }
-            // Send back the ID of the new business
             res.status(201).send({ Business_id: results.insertId });
         });
     } catch (error) {
@@ -150,6 +147,7 @@ app.post('/api/business', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 app.put('/api/business/:id', async (req, res) => {
     try {
