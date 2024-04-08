@@ -236,18 +236,18 @@ app.get('/api/station', async (req, res) => {
 app.put('/api/station/:id', async (req, res) => {
     try {
         const { id } = req.params; // Machine_ID from the URL
-        const { Machine_name, Business_id } = req.body; // New values from the request body
+        const { Machine_name} = req.body; // New values from the request body
 
         // Basic validation
-        if (!Machine_name || !Business_id) {
-            return res.status(400).send('Machine name and Business ID are required');
+        if (!Machine_name) {
+            return res.status(400).send('Machine name is required');
         }
 
         await connectToDatabase();
 
-        const query = 'UPDATE station SET Machine_name = ?, Business_id = ? WHERE Machine_ID = ?';
+        const query = 'UPDATE station SET Machine_name = ? WHERE Machine_ID = ?';
 
-        connection.query(query, [Machine_name, Business_id, id], (err, results) => {
+        connection.query(query, [Machine_name, id], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send('Internal Server Error');
