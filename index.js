@@ -125,36 +125,26 @@ app.get('/api/business', async (req, res) => {
 
 app.post('/api/business', async (req, res) => {
     try {
-        const businesses = req.body;
+        const { Business_id, Business_name } = req.body;
 
-        if (!Array.isArray(businesses)) {
-            return res.status(400).send('Invalid request format. Expected an array of businesses.');
+        if (!Business_name) {
+            return res.status(400).send('Business name is required');
         }
 
         await connectToDatabase();
 
-        const insertPromises = businesses.map(async (business) => {
-            const { Business_id, Business_name } = business;
+        const query = `INSERT INTO business (Business_id, Business_name) VALUES (?, ?)`;
+        const [result] = await connection.promise().query(query, [Business_id, Business_name]);
 
-            if (!Business_name) {
-                console.error(`Business name is missing for Business_id: ${Business_id}`);
-                return;
-            }
+        const insertedBusiness = { Business_id: result.insertId, Business_name };
 
-            const query = `INSERT INTO business (Business_id, Business_name) VALUES (?, ?)`;
-            const [result] = await connection.promise().query(query, [Business_id, Business_name]);
-
-            return { Business_id: result.insertId };
-        });
-
-        const insertedBusinesses = await Promise.all(insertPromises);
-
-        res.status(201).json(insertedBusinesses);
+        res.status(201).json(insertedBusiness);
     } catch (error) {
-        console.error('Error adding businesses:', error);
+        console.error('Error adding business:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 
