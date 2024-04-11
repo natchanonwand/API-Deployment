@@ -17,6 +17,7 @@ app.use(cors(corsOptions));
 const secret = 'Fullstack-login-project';
 
 app.use(cors(corsOptions));
+app.use(express.json());
 
 // Database configuration
 const connection = mysql.createConnection(process.env.DATABASE_URL);
