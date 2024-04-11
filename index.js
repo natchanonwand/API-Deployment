@@ -16,7 +16,7 @@ app.use(cors(corsOptions));
 // Secret key for JWT
 const secret = 'Fullstack-login-project';
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 // Database configuration
