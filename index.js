@@ -131,7 +131,7 @@ app.get('/api/business', async (req, res) => {
 
 app.post('/api/business', async (req, res) => {
     try {
-        const { Business_name } = req.body;
+        const { Business_id, Business_name } = req.body;
 
         if (!Business_name) {
             return res.status(400).send('Business name is required');
@@ -139,11 +139,9 @@ app.post('/api/business', async (req, res) => {
 
         await connectToDatabase();
 
-        // Only include Business_name in the INSERT statement
-        const query = `INSERT INTO business (Business_name) VALUES (?)`;
-        const [result] = await connection.promise().query(query, [Business_name]);
+        const query = `INSERT INTO business (Business_id, Business_name) VALUES (?, ?)`;
+        const [result] = await connection.promise().query(query, [Business_id, Business_name]);
 
-        // The database will automatically generate Business_id for the new business
         const insertedBusiness = { Business_id: result.insertId, Business_name };
 
         res.status(201).json(insertedBusiness);
