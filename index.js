@@ -6,6 +6,12 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
+const corsOptions = {
+    origin: 'http://localhost:3001', 
+    optionsSuccessStatus: 200 
+  };
+  
+  app.use(cors(corsOptions));
 
 // Secret key for JWT
 const secret = 'Fullstack-login-project';
