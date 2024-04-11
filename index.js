@@ -11,7 +11,7 @@ const corsOptions = {
     optionsSuccessStatus: 200 
   };
   
-  app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 // Secret key for JWT
 const secret = 'Fullstack-login-project';
