@@ -129,27 +129,32 @@ app.get('/api/business', async (req, res) => {
     }
 });
 
-app.post('/api/business', async (req, res) => {
+aapp.post('/api/business', async (req, res) => {
+    const { Business_name } = req.body;
+
+    if (!Business_name) {
+        return res.status(400).send('Business name is required');
+    }
+
     try {
-        const { Business_id, Business_name } = req.body;
-
-        if (!Business_name) {
-            return res.status(400).send('Business name is required');
-        }
-
         await connectToDatabase();
 
+        // Find the maximum Business_id and add 1 to it for the new ID
+        const [maxIdResult] = await connection.promise().query('SELECT MAX(Business_id) as maxId FROM business');
+        const maxId = maxIdResult[0].maxId || 0; // Default to 0 if there are no rows
+        const newBusinessId = maxId + 1;
+
         const query = `INSERT INTO business (Business_id, Business_name) VALUES (?, ?)`;
-        const [result] = await connection.promise().query(query, [Business_id, Business_name]);
+        const [result] = await connection.promise().query(query, [newBusinessId, Business_name]);
 
-        const insertedBusiness = { Business_id: result.insertId, Business_name };
-
+        const insertedBusiness = { Business_id: newBusinessId, Business_name };
         res.status(201).json(insertedBusiness);
     } catch (error) {
         console.error('Error adding business:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 app.put('/api/business/:id', async (req, res) => {
