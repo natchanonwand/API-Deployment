@@ -129,7 +129,7 @@ app.get('/api/business', async (req, res) => {
     }
 });
 
-aapp.post('/api/business', async (req, res) => {
+app.post('/api/business', async (req, res) => {
     const { Business_name } = req.body;
 
     if (!Business_name) {
