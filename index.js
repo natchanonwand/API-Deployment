@@ -16,8 +16,7 @@ const corsOptions = {
 // Secret key for JWT
 const secret = 'Fullstack-login-project';
 
-app.use(cors());
-app.use(express.json());
+app.use(cors(corsOptions));
 
 // Database configuration
 const connection = mysql.createConnection(process.env.DATABASE_URL);
