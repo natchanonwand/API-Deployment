@@ -296,44 +296,41 @@ app.delete('/api/station/:id', async (req, res) => {
 });
 
 app.post('/api/station', async (req, res) => {
+    const { Machine_name, Business_id } = req.body;
+
+    // Basic validation
+    if (!Machine_name || !Business_id) {
+        return res.status(400).send('Both Machine name and Business ID are required');
+    }
+
     try {
-        const { Machine_name, Business_id } = req.body;
-
-        // Basic validation
-        if (!Machine_name || !Business_id) {
-            return res.status(400).send('Both Machine name and Business ID are required');
-        }
-
         await connectToDatabase();
+
+        // Start a transaction
+        await connection.promise().beginTransaction();
 
         // First, validate the Business_id exists in the business table
         const validationQuery = 'SELECT 1 FROM business WHERE Business_id = ?';
+        const [validationResults] = await connection.promise().query(validationQuery, [Business_id]);
 
-        connection.query(validationQuery, [Business_id], (validationErr, validationResults) => {
-            if (validationErr) {
-                console.error(validationErr);
-                return res.status(500).send('Internal Server Error');
-            }
+        if (validationResults.length === 0) {
+            // No matching business found for the provided Business_id
+            await connection.promise().rollback(); // Rollback transaction
+            return res.status(400).send('Invalid Business ID');
+        }
 
-            if (validationResults.length === 0) {
-                // No matching business found for the provided Business_id
-                return res.status(400).send('Invalid Business ID');
-            }
+        // Business_id is valid, proceed to insert into station table
+        const insertQuery = 'INSERT INTO station (Machine_name, Business_id) VALUES (?, ?)';
+        const [insertResults] = await connection.promise().query(insertQuery, [Machine_name, Business_id]);
 
-            // Business_id is valid, proceed to insert into station table
-            const insertQuery = 'INSERT INTO station (Machine_name, Business_id) VALUES (?, ?)';
+        // Commit the transaction
+        await connection.promise().commit();
 
-            connection.query(insertQuery, [Machine_name, Business_id], (insertErr, insertResults) => {
-                if (insertErr) {
-                    console.error(insertErr);
-                    return res.status(500).send('Internal Server Error');
-                }
-                // Send back the ID of the new station
-                res.status(201).send({ Machine_ID: insertResults.insertId });
-            });
-        });
+        // Send back the ID of the new station
+        res.status(201).send({ Machine_ID: insertResults.insertId });
     } catch (error) {
-        console.error(error);
+        await connection.promise().rollback(); // Rollback transaction on error
+        console.error('Failed to add station:', error);
         res.status(500).send('Internal Server Error');
     }
 });
