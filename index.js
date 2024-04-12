@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const app = express();
 const corsOptions = {
-    origin: 'http://localhost:3001', 
+    origin: ['http://localhost:3001', 'https://react-deployment-fawn.vercel.app'], 
     optionsSuccessStatus: 200 
   };
   
