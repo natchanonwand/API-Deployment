@@ -309,32 +309,36 @@ app.post('/api/station', async (req, res) => {
         // Start a transaction
         await connection.promise().beginTransaction();
 
-        // First, validate the Business_id exists in the business table
+        // Validate the Business_id exists in the business table
         const validationQuery = 'SELECT 1 FROM business WHERE Business_id = ?';
         const [validationResults] = await connection.promise().query(validationQuery, [Business_id]);
-
         if (validationResults.length === 0) {
             // No matching business found for the provided Business_id
             await connection.promise().rollback(); // Rollback transaction
             return res.status(400).send('Invalid Business ID');
         }
 
-        // Business_id is valid, proceed to insert into station table
-        const insertQuery = 'INSERT INTO station (Machine_name, Business_id) VALUES (?, ?)';
-        const [insertResults] = await connection.promise().query(insertQuery, [Machine_name, Business_id]);
+        // Get the maximum Machine_ID from the station table and increment it by 1
+        const maxIdQuery = 'SELECT MAX(Machine_ID) as maxId FROM station';
+        const [maxIdResult] = await connection.promise().query(maxIdQuery);
+        const maxId = maxIdResult[0].maxId || 0; // Default to 0 if no machines exist
+        const newMachineId = maxId + 1;
+
+        // Business_id is valid, and new Machine_ID is determined, proceed to insert into station table
+        const insertQuery = 'INSERT INTO station (Machine_ID, Machine_name, Business_id) VALUES (?, ?, ?)';
+        const [insertResults] = await connection.promise().query(insertQuery, [newMachineId, Machine_name, Business_id]);
 
         // Commit the transaction
         await connection.promise().commit();
 
         // Send back the ID of the new station
-        res.status(201).send({ Machine_ID: insertResults.insertId });
+        res.status(201).send({ Machine_ID: newMachineId });
     } catch (error) {
         await connection.promise().rollback(); // Rollback transaction on error
         console.error('Failed to add station:', error);
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 
 app.get('/api/countrecords_counttray', async (req, res) => {
