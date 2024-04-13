@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const app = express();
 const corsOptions = {
-    origin: ['http://localhost:3001', 'https://react-deployment-ftk3tyfj1-natchanonwands-projects.vercel.app/'], 
+    origin: ['http://localhost:3001', 'https://react-deployment-fawn.vercel.app'], 
     optionsSuccessStatus: 200 
   };
   
