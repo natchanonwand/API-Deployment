@@ -6,17 +6,12 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
-const corsOptions = {
-    origin: ['http://localhost:3001', 'https://react-deployment-fawn.vercel.app'], 
-    optionsSuccessStatus: 200 
-  };
-  
-app.use(cors(corsOptions));
+
+app.use(cors({ origin: '*' })); // Allow all origins
 
 // Secret key for JWT
 const secret = 'Fullstack-login-project';
 
-app.use(cors());
 app.use(express.json());
 
 // Database configuration
