@@ -1,3 +1,59 @@
+//For Planetscale connection
+
+// const express = require('express');
+// const mysql = require('mysql2');
+// const cors = require('cors');
+// const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
+// require('dotenv').config();
+
+// const app = express();
+
+// app.use(cors({ origin: '*' })); // Allow all origins
+
+// // Secret key for JWT
+// const secret = 'Fullstack-login-project';
+
+// app.use(express.json());
+
+// // Database configuration
+// const connection = mysql.createConnection(process.env.DATABASE_URL);
+
+// // Utility function for connecting to MySQL database
+// function connectToDatabase() {
+//     return new Promise((resolve, reject) => {
+//         connection.connect(err => {
+//             if (err) reject(err);
+//             resolve();
+//         });
+//     });
+// }
+
+// // login path
+
+// // Registration endpoint
+// app.post('/register', async (req, res) => {
+//     const { email, password, fname, lname } = req.body;
+
+//     try {
+//         // Hash the password
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         // Insert the user data with hashed password into the database
+//         const insertQuery = 'INSERT INTO users (email, password, fname, lname) VALUES (?, ?, ?, ?)';
+//         await connection.promise().query(insertQuery, [email, hashedPassword, fname, lname]);
+
+//         res.status(201).json({ message: 'User registered successfully' });
+//     } catch (error) {
+//         console.error('Error registering user:', error);
+//         res.status(500).json({ error: 'Error registering user' });
+//     }
+// });
+
+
+
+//For localhost connection
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -7,15 +63,38 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors({ origin: '*' })); // Allow all origins
+const allowedOrigins = [
+    'http://localhost:9906',
+    'http://localhost:3000',
+    'http://localhost:3001'
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Secret key for JWT
-const secret = 'Fullstack-login-project';
+const secret = process.env.SECRET_KEY || 'Fullstack-login-project';
 
 app.use(express.json());
 
 // Database configuration
-const connection = mysql.createConnection(process.env.DATABASE_URL);
+const connection = mysql.createConnection({
+    host: process.env.DATABASE_HOST || 'localhost',
+    port: process.env.DATABASE_PORT || 9906,
+    user: process.env.DATABASE_USER || 'root',
+    password: process.env.DATABASE_PASSWORD || 'MYSQL_ROOT_PASSWORD',
+    database: process.env.DATABASE_NAME || 'test'
+});
 
 // Utility function for connecting to MySQL database
 function connectToDatabase() {
@@ -26,8 +105,6 @@ function connectToDatabase() {
         });
     });
 }
-
-// login path
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
